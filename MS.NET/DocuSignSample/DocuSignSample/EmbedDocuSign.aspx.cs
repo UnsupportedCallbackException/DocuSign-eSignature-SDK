@@ -20,24 +20,27 @@ namespace DocuSignSample
             {
                 Response.Redirect("LogIn.aspx");
             }
-            if (!Page.IsPostBack && Request.Form["__EVENTTARGET"] != logoutCtrlName)
+            if (!Page.IsPostBack)
             {
                 // Check to see if we're coming back after signing as the first signer
                 EnvelopeStatus status = (EnvelopeStatus)Session[Keys.EnvelopeStatus];
+
+                var eventName = Request[Keys.Event] == null ? null : Request[Keys.Event].ToString(); 
+
                 if (null == status || null == Request[Keys.Event])
                 {
                     hostiframe.Visible = false;
                 }
 
                 // If we are, start the second signer
-                else if (Request[Keys.Event].ToString() == "SignComplete1" && status.RecipientStatuses.Length > 1)
+                else if (eventName == "SignComplete1" && status.RecipientStatuses.Length > 1)
                 {
                     SignSecond(status);
                 }
 
                 // If we're finished altogether, or if one of the signers exited without completed, go to the status page
-                else if ((Request[Keys.Event].ToString() == "SignComplete1" && status.RecipientStatuses.Length == 1) ||
-                    Request[Keys.Event].ToString() == "SignComplete2" || null != Request["event"].ToString())
+                else if ((eventName == "SignComplete1" && status.RecipientStatuses.Length == 1) ||
+                    eventName == "SignComplete2" || null != eventName)
                 {
                     Session[Keys.EnvelopeStatus] = null;
                     Response.Redirect("GetStatusAndDocs.aspx", false);

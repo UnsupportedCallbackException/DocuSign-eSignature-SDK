@@ -3,3 +3,7 @@
 *.user
 /MS.NET/DocuSignSample/DocuSignSample/bin
 /MS.NET/DocuSignSample/DocuSignSample/obj
+/MS.NET/DocuSignSample/Connect/bin
+/MS.NET/DocuSignSample/Connect/obj
+/MS.NET/DocuSignSample/CodeSnippets/bin
+/MS.NET/DocuSignSample/CodeSnippets/obj

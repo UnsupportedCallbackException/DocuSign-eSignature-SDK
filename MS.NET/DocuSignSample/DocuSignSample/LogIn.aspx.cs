@@ -12,11 +12,7 @@ namespace DocuSignSample
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Page.IsPostBack)
-            {
-                On_Login();
-            }
-            else
+            if (!Page.IsPostBack)
             {
                 // Prepopulate any of the fields we can from the web.config
                 if (null != Session[Keys.ApiEmail])
@@ -34,19 +30,19 @@ namespace DocuSignSample
             }
         }
 
-        public void On_Login()
+        public void On_Login(object sender, EventArgs e)
         {
             // Log in with Credential API
-            var login = String.Format("[{0}]{1}", Request.Form[Keys.DevCenterKey], Request.Form[Keys.DevCenterEmail]);
+            var login = String.Format("[{0}]{1}", Request.Form[Keys.DevCenterKey], DevCenterEmail.Text);
             var credential = new CredentialAPI.CredentialSoapClient();
-            var result = credential.Login(login, Request.Form[Keys.DevCenterPassword].ToString(), false);
+            var result = credential.Login(login, DevCenterPassword.Text, false);
 
             // If we could log the user in, go to the main page
             if (result.Success)
             {
                 // Grab the info from the form, even if it is already stored in the Session
-                Session[Keys.ApiEmail] = Request.Form[Keys.DevCenterEmail];
-                Session[Keys.ApiPassword] = Request.Form[Keys.DevCenterPassword];
+                Session[Keys.ApiEmail] = DevCenterEmail.Text;
+                Session[Keys.ApiPassword] = DevCenterPassword.Text;
                 Session[Keys.ApiIkey] = Request.Form[Keys.DevCenterKey];
 
                 // Get the account ID first

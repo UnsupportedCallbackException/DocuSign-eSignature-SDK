@@ -18,6 +18,11 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
+    <UseIISExpress>false</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -76,12 +81,24 @@
     </None>
     <None Include="Web References\net.docusign.test\api.disco" />
     <None Include="Web References\net.docusign.test\api.wsdl" />
+    <Content Include="Web References\net.docusign.test\AuthenticationStatus.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\net.docusign.test\AuthoritativeCopyExportDocuments.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
     <None Include="Web References\net.docusign.test\AuthoritativeCopyExportStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <Content Include="Web References\net.docusign.test\AvailableFolders.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\net.docusign.test\BrandResults.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\net.docusign.test\ConnectFailure.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\net.docusign.test\CorrectionStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -91,6 +108,9 @@
     <None Include="Web References\net.docusign.test\DocuSignEnvelopeInformation.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <Content Include="Web References\net.docusign.test\Envelope.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\net.docusign.test\EnvelopePDF.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -103,9 +123,18 @@
     <None Include="Web References\net.docusign.test\EnvelopeTemplateDefinition.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <Content Include="Web References\net.docusign.test\FilteredEnvelopeStatusChanges.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\net.docusign.test\FilteredEnvelopeStatuses.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
+    <Content Include="Web References\net.docusign.test\FolderResults.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
+    <Content Include="Web References\net.docusign.test\PublishConnectFailuresResult.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </Content>
     <None Include="Web References\net.docusign.test\PurgeDocumentStatus.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
@@ -199,6 +228,9 @@
           <DevelopmentServerVPath>/hcc_poc</DevelopmentServerVPath>
           <IISUrl>http://ec2-184-73-98-239.compute-1.amazonaws.com/hcc_poc/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>

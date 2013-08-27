@@ -5,52 +5,38 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using System.Web.UI.HtmlControls;
 
 namespace DocuSignSample
 {
     public partial class SendTemplate : BasePage
     {
-        protected override void OnInit(EventArgs e)
-        {
-            selectTemplateButton.ServerClick += new EventHandler(OnTemplateSelect);
-        }
-
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!LoggedIn())
             {
                 Response.Redirect("LogIn.aspx");
             }
-            if (Request.Form["__EVENTTARGET"] != logoutCtrlName)
+            if (!Page.IsPostBack)
             {
-                if (!Page.IsPostBack)
-                {
-                    LoadTemplates();
-                }
-                else
-                {
-                    if (null != Request.Form[Keys.SendNow] || null != Request.Form[Keys.EditFirst])
-                    {
-                        CreateEnvelope();
-                    }
-                }
+                LoadTemplates();
             }
         }
 
-        protected void CreateEnvelope()
+        protected void CreateEnvelope(object sender, CommandEventArgs e)
         {
             // Create the envelope information
             var envelopeInfo = new DocuSignAPI.EnvelopeInformation
                 {
-                    Subject = Request.Form[Keys.Subject],
-                    EmailBlurb = Request.Form[Keys.EmailBlurb],
+                    Subject = txtSubject.Text,
+                    EmailBlurb = txtEmailBlurb.Text,
                     AccountId = Session[Keys.ApiAccountId].ToString()
                 };
 
             // Add any reminders
             if (!String.IsNullOrEmpty(Request.Form[Keys.Reminders]))
             {
-                DateTime remind = Convert.ToDateTime(Request.Form[Keys.Reminders]);
+                DateTime remind = Convert.ToDateTime(reminders.Value);
                 int difference = (remind - DateTime.Today).Days;
 
                 if (null == envelopeInfo.Notification)
@@ -68,7 +54,7 @@ namespace DocuSignSample
             // Add any expirations
             if (!String.IsNullOrEmpty(Request.Form[Keys.Expiration]))
             {
-                DateTime expire = Convert.ToDateTime(Request.Form[Keys.Expiration]);
+                DateTime expire = Convert.ToDateTime(expiration.Value);
                 int difference = (expire - DateTime.Today).Days;
 
                 if (null == envelopeInfo.Notification)
@@ -91,11 +77,11 @@ namespace DocuSignSample
             var templateReference = new DocuSignAPI.TemplateReference
                 {
                     TemplateLocation = DocuSignAPI.TemplateLocationCode.Server,
-                    Template = TemplateTable.Value,
+                    Template = Templates.Value,
                     RoleAssignments = CreateFinalRoleAssignments(recipients)
                 };
 
-            if (null != Request.Form[Keys.SendNow])
+            if (e.CommandName == "SendNow")
             {
                 SendNow(templateReference, envelopeInfo, recipients);
             }
@@ -161,28 +147,26 @@ namespace DocuSignSample
             // Create all the recipients on the template's envelope
             for (int i = 1; i <= Request.Form.Count; i++)
             {
-                if (null != Request.Form[Keys.RecipientRole + i])
+                if (null == Request.Form[Keys.RecipientRole + i])
                 {
-                    var r = new DocuSignAPI.Recipient
-                        {
-                            UserName = Request.Form[Keys.RecipientName + i].ToString(),
-                            Email = Request.Form[Keys.RecipientEmail + i].ToString(),
-                            ID = i.ToString(),
-                            RoleName = Request.Form[Keys.RecipientRole + i],
-                            Type = DocuSignAPI.RecipientTypeCode.Signer
-                        };
-
-                    if (null == Request.Form[Keys.RecipientInviteToggle + i])
+                    continue;
+                }
+                var r = new DocuSignAPI.Recipient
                     {
-                        // we want an embedded signer
-                        r.CaptiveInfo = new DocuSignAPI.RecipientCaptiveInfo {ClientUserId = i.ToString()};
-                    }
-                    runningList.Add(r);
-                }
-                else
+                        UserName = Request.Form[Keys.RecipientName + i].ToString(),
+                        Email = Request.Form[Keys.RecipientEmail + i].ToString(),
+                        ID = i.ToString(),
+                        RoleName = Request.Form[Keys.RecipientRole + i],
+                        Type = DocuSignAPI.RecipientTypeCode.Signer
+                    };
+
+                if (null == Request.Form[Keys.RecipientInviteToggle + i])
                 {
-                    break;
+                    // we want an embedded signer
+                    r.CaptiveInfo = new DocuSignAPI.RecipientCaptiveInfo {ClientUserId = i.ToString()};
                 }
+                runningList.Add(r);
+               
             }
 
             return runningList.ToArray();
@@ -209,7 +193,7 @@ namespace DocuSignSample
                 // Add them to the drop-down select
                 foreach (DocuSignAPI.EnvelopeTemplateDefinition template in templates)
                 {
-                    TemplateTable.Items.Add(new ListItem("Template " + template.TemplateID + ": " + template.Name, template.TemplateID));
+                    Templates.Items.Add(new ListItem("Template " + template.TemplateID + ": " + template.Name, template.TemplateID));
                 }
             }
             catch (Exception ex)
@@ -226,7 +210,7 @@ namespace DocuSignSample
             DocuSignAPI.APIServiceSoapClient client = CreateAPIProxy();
             try
             {
-                DocuSignAPI.EnvelopeTemplate template = client.RequestTemplate(TemplateTable.Value, false);
+                DocuSignAPI.EnvelopeTemplate template = client.RequestTemplate(Templates.Value, false);
                 // Populate the recipient UI
                 AddRecipients(template.Envelope.Recipients);
             }
@@ -244,24 +228,24 @@ namespace DocuSignSample
             int i = 1;
             foreach (DocuSignAPI.Recipient recipient in recipients)
             {
-                var row = new System.Web.UI.HtmlControls.HtmlTableRow();
-                var roleCell = new System.Web.UI.HtmlControls.HtmlTableCell();
-                var nameCell = new System.Web.UI.HtmlControls.HtmlTableCell();
-                var emailCell = new System.Web.UI.HtmlControls.HtmlTableCell();
-                var securityCell = new System.Web.UI.HtmlControls.HtmlTableCell();
-                var inviteCell = new System.Web.UI.HtmlControls.HtmlTableCell();
+                var row = new HtmlTableRow();
+                var roleCell = new HtmlTableCell();
+                var nameCell = new HtmlTableCell();
+                var emailCell = new HtmlTableCell();
+                var securityCell = new HtmlTableCell();
+                var inviteCell = new HtmlTableCell();
 
                 roleCell.InnerHtml = String.Format(
-                    "<input id=\"{0}\" type=\"text\" readonly=\"true\" name=\"{0}{1}\" value=\"{2}\"/>", 
-                    Keys.RecipientRole, i.ToString(), recipient.RoleName);
+                    "<input id='{0}' type='text' readonly='true' name='{0}{1}' value='{2}' />", 
+                    Keys.RecipientRole, i, recipient.RoleName);
 
                 nameCell.InnerHtml = String.Format(
-                    "<input id=\"{0}\" type=\"text\" name=\"{0}{1}\" value=\"{2}\"/>", 
-                    Keys.RecipientName, i.ToString(), recipient.UserName);
+                    "<input id='{0}' type='text' name='{0}{1}' value='{2}'/>", 
+                    Keys.RecipientName, i, recipient.UserName);
 
                 emailCell.InnerHtml = String.Format(
-                    "<input id=\"{0}\" type=\"text\" name=\"{0}{1}\" value=\"{2}\"/>",
-                    Keys.RecipientEmail, i.ToString(), recipient.Email);
+                    "<input id='{0}' type='text' name='{0}{1}' value='{2}'/>",
+                    Keys.RecipientEmail, i, recipient.Email);
 
                 string security = String.Empty;
                 if (!String.IsNullOrEmpty(recipient.AccessCode))
@@ -282,17 +266,18 @@ namespace DocuSignSample
                 }
 
                 securityCell.InnerHtml = String.Format(
-                    "<input id=\"{0}\" type=\"text\" readonly=\"true\" name=\"{0}{1}\" value=\"{2}\"/>",
-                    Keys.RecipientSecurity, i.ToString(), security);
+                    "<input id='{0}' type='text' readonly='readonly' name='{0}{1}' value='{2}' />",
+                    Keys.RecipientSecurity, i, security);
 
-                inviteCell.InnerHtml = String.Format(
-                    "<ul class=\"switcher\" name=\"{0}{1}\" ><li class=\"active\"><a href=\"#\" title=\"On\">ON</a></li><li><a href=\"#\" title=\"OFF\">OFF</a></li><input id=\"RecipientInviteToggle{1}\" name=\"RecipientInviteToggle{1}\" value=\"RecipientInviteToggle{1}\" type=\"checkbox\" checked=\"\" style=\"display: none\"></ul>",
-                    Keys.RecipientInvite, i.ToString());
-                //<ul class="switcher" id="RecipientInvite1">
-                //    <li id="RecipientInviteon1" class="active"><a href="#" title="On">ON</a></li>
-                //    <li id="RecipientInviteoff1"><a href="#" title="OFF">OFF</a></li>
-                //    <input id="RecipientInviteToggle1" name="RecipientInviteToggle1" value="RecipientInviteToggle1" type="checkbox" checked="" style="display: none">
-                //</ul>
+                var inviteData = "<div class='btn-group' data-toggle='buttons-radio'>"+
+		            "<button type='button' class='btn active' >ON</button>"+
+		            "<button type='button' class='btn' >OFF</button>"+
+	                "</div>"+
+	                "<input id='RecipientInviteToggle{1}' name='RecipientInviteToggle{1}' value='RecipientInviteToggle{1}' type='checkbox' checked style='visibility:hidden;'/>";
+
+                inviteCell.InnerHtml = String.Format(inviteData,
+                    Keys.RecipientInvite, i);
+
                 inviteCell.Attributes[Keys.Id] = String.Format("{0}{1}", Keys.RecipientInvite,recipient.ID);
                 inviteCell.Attributes[Keys.Name] = String.Format("{0}{1}", Keys.RecipientInvite,recipient.ID);
 

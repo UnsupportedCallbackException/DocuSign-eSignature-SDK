@@ -15,40 +15,14 @@ namespace DocuSignSample
             if (!LoggedIn())
             {
                 Response.Redirect("LogIn.aspx");
-            }
-                if (Page.IsPostBack && Request.Form["__EVENTTARGET"] != logoutCtrlName)
-                {
-                    // Construct the envelope basics
-                    var envelope = new Envelope
-                        {
-                            Subject = Request.Form[Keys.Subject],
-                            EmailBlurb = Request.Form[Keys.EmailBlurb],
-                            AccountId = Session[Keys.ApiAccountId].ToString(),
-                            Recipients = ConstructRecipients(),
-                            Documents = GetDocuments()
-                        };
-
-                    // Construct the recipients, documents and tabs
-                    envelope.Tabs = AddTabs(envelope.Recipients.Length);
-                    envelope = ProcessOptions(envelope);
-
-                    if (null != Request.Form[Keys.SendNow])
-                    {
-                        //we want to send the form ASAP
-                        SendNow(envelope);
-                    }
-
-                    else
-                    {
-                        //edit before sending -- embedded sending
-                        EmbedSending(envelope);
-                    }
-                }
-            
+            }            
         }
 
-        protected void SendNow(Envelope envelope)
+        protected void SendNow(object sender, EventArgs e)
         {
+            
+            var envelope = ProcessOptions();
+
             APIServiceSoapClient client = CreateAPIProxy();
             try
             {
@@ -67,10 +41,15 @@ namespace DocuSignSample
             {
                 GoToErrorPage(ex.Message);
             }
+
+
+
         }
 
-        protected void EmbedSending(Envelope envelope)
+        protected void EmbedSending(object sender, EventArgs e)
         {
+            var envelope = ProcessOptions();
+
             APIServiceSoapClient client = CreateAPIProxy();
             try
             {
@@ -92,6 +71,7 @@ namespace DocuSignSample
             }
         }
 
+
         private Recipient[] ConstructRecipients()
         {
             // Construct the recipients
@@ -99,54 +79,49 @@ namespace DocuSignSample
 
             for (int i = 1; i <= Request.Form.Count; i++)
             {
-                if (null !=Request.Form[Keys.RecipientName + i])
+                if (null ==Request.Form[Keys.RecipientName + i])
                 {
-                    var r = new Recipient
+                    continue;
+                }
+                var recipient = new Recipient
+                    {
+                        UserName = Request.Form[Keys.RecipientName + i],
+                        Email = Request.Form[Keys.RecipientEmail + i],
+                        ID = i.ToString(),
+                        Type = RecipientTypeCode.Signer 
+                    };
+
+                // Get and set the security settings
+                string security = Request.Form[Keys.RecipientSecurity + i] == null ? null : Request.Form[Keys.RecipientSecurity + i];
+                switch (security)
+                {
+                    case "AccessCode":
+                        recipient.AccessCode = Request.Form[Keys.RecipientSecuritySetting + i].ToString();
+                        break;
+                    case "PhoneAuthentication":
+                        recipient.PhoneAuthentication = new RecipientPhoneAuthentication
                         {
-                            UserName = Request.Form[Keys.RecipientName + i],
-                            Email = Request.Form[Keys.RecipientEmail + i]
+                            RecipMayProvideNumber = true,
+                            RecipMayProvideNumberSpecified = true,
+                            RecordVoicePrint = true,
+                            RecordVoicePrintSpecified = true
                         };
-
-                    // Get and set the security settings
-                    string security = Request.Form[Keys.RecipientSecurity + i];
-                    if (null != security)
-                    {
-                        switch (security)
-                        {
-                            case "AccessCode":
-                                r.AccessCode = Request.Form[Keys.RecipientSecuritySetting + i].ToString();
-                                break;
-                            case "PhoneAuthentication":
-                                r.PhoneAuthentication = new RecipientPhoneAuthentication
-                                    {
-                                        RecipMayProvideNumber = true,
-                                        RecipMayProvideNumberSpecified = true,
-                                        RecordVoicePrint = true,
-                                        RecordVoicePrintSpecified = true
-                                    };
-                                r.IDCheckConfigurationName = "Phone Auth $";
-                                break;
-                            case "IDCheck":
-                                r.RequireIDLookup = true;
-                                r.RequireIDLookupSpecified = true;
-                                r.IDCheckConfigurationName = "ID Check $";
-                                break;
-                        }
-                    }
-                    r.ID = i.ToString();
-                    r.Type = RecipientTypeCode.Signer;
-
-                    if (null == Request.Form[Keys.RecipientInviteToggle + i])
-                    {
-                        // we want an embedded signer
-                        r.CaptiveInfo = new RecipientCaptiveInfo {ClientUserId = i.ToString()};
-                    }
-                    runningList.Add(r);
+                        recipient.IDCheckConfigurationName = "Phone Auth $";
+                        break;
+                    case "IDCheck":
+                        recipient.RequireIDLookup = true;
+                        recipient.RequireIDLookupSpecified = true;
+                        recipient.IDCheckConfigurationName = "ID Check $";
+                        break;
                 }
-                else
+
+                if (null == Request.Form[Keys.RecipientInviteToggle + i])
                 {
-                    break;
+                    // we want an embedded signer
+                    recipient.CaptiveInfo = new RecipientCaptiveInfo {ClientUserId = i.ToString()};
                 }
+                runningList.Add(recipient);
+                
             }
             return runningList.ToArray();
         }
@@ -467,8 +442,21 @@ namespace DocuSignSample
             runningList.Add(attach);
         }
 
-        private Envelope ProcessOptions(Envelope envelope)
+        private Envelope ProcessOptions()
         {
+
+            var envelope = new Envelope
+            {
+                Subject = txtSubject.Text,
+                EmailBlurb = txtEmailBlurb.Text,
+                AccountId = Session[Keys.ApiAccountId].ToString(),
+                Recipients = ConstructRecipients(),
+                Documents = GetDocuments()
+            };
+
+            // Construct the recipients, documents and tabs
+            envelope.Tabs = AddTabs(envelope.Recipients.Length);
+
             if (null != Request.Form[Keys.Markup])
             {
                 // Allow recipients to mark up the envelope
@@ -522,5 +510,7 @@ namespace DocuSignSample
 
             return envelope;
         }
+
+        
     }
 }

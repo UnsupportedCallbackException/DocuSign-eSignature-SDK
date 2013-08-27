@@ -2,123 +2,111 @@
     CodeBehind="SendTemplate.aspx.cs" Inherits="DocuSignSample.SendTemplate" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link rel="stylesheet" href="css/jquery.ui.all.css" />
-    <link rel="Stylesheet" href="css/SendTemplate.css" />
-    <script type="text/javascript" src="js/jquery-1.4.4.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.datepicker.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.dialog.js"></script>
-    <script type="text/javascript" src="js/jquery.bgiframe-2.1.2.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.mouse.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.draggable.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.position.js"></script>
-    <script type="text/javascript" src="js/Utils.js"></script>
     <script type="text/javascript" charset="utf-8">
-    $(document).ready(function () {
-            activate();
-        });
+
         $(function () {
-            var today = new Date().getDate();
+            var today = new Date();
             $("#reminders").datepicker({
-                showOn: "button",
-                buttonImage: "images/calendar.png",
-                buttonImageOnly: true,
                 minDate: today
             });
             $("#expiration").datepicker({
-                showOn: "button",
-                buttonImage: "images/calendar.png",
                 buttonImageOnly: true,
                 minDate: today
             });
-            $(".switcher li").bind("click", function () {
-                var act = $(this);
-                $(act).parent().children('li').removeClass("active").end();
-                $(act).addClass("active");
-            });
+
         });
 
     </script>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <form id="SendTemplateForm" action="SendTemplate.aspx" runat="server">
-    <div>
-        <input id="subject" name="subject" placeholder="<enter the subject>" type="text"
-            class="email" /><!--<img alt="" src="" class="helplink" />--><br />
-        <textarea id="emailblurb" cols="20" name="emailblurb" placeholder="<enter the e-mail blurb>"
-            rows="4" class="email"></textarea>
-    </div>
-    <div>
-        Select a Template<br />
-        <select id="TemplateTable" name="TemplateTable" runat="server">
-        </select><input type="button" id="selectTemplateButton" name="selectTemplateButton"
-            value="Go" runat="server" />
-    </div>
-    <br />
-    <div>
-        <table width="100%" id="RecipientTable" name="RecipientTable" runat="server">
-            <tr class="rowheader">
-                <th class="fivecolumn">
-                    <b>Role Name</b>
-                </th>
-                <th class="fivecolumn">
-                    <b>Name</b>
-                </th>
-                <th class="fivecolumn">
-                    <b>E-mail</b>
-                </th>
-                <th class="fivecolumn">
-                    <b>Security</b>
-                    <!--<img alt="" src="" class="helplink" />-->
-                </th>
-                <th class="fivecolumn">
-                    <b>Send E-mail Invite</b>
-                </th>
-            </tr>
-        </table>
-    </div>
-    <div>
-        <table width="100%">
-            <tr class="rowbody">
-                <td class="fourcolumn">
-                </td>
-                <td class="fourcolumn">
-                    <input type="text" id="reminders" name="reminders" class="datepickers" />
-                </td>
-                <td class="fourcolumn">
-                    <input type="text" id="expiration" name="expiration" class="datepickers" />
-                </td>
-                <td class="fourcolumn">
-                </td>
-            </tr>
-            <tr>
-                <td class="fourcolumn">
-                </td>
-                <td class="fourcolumn">
-                    Add Daily Reminders
-                </td>
-                <td class="fourcolumn">
-                    Add Expiration
-                </td>
-                <td class="fourcolumn">
-                </td>
-            </tr>
-            <tr>
-                <td class="fourcolumn">
-                </td>
-                <td class="leftbutton">
-                    <input type="submit" value="Send Now" name="SendNow" align="right" style="width: 100%;"
-                        class="docusignbutton orange" />
-                </td>
-                <td class="rightbutton">
-                    <input type="submit" value="Edit Before Sending" name="EditFirst" align="left" style="width: 100%;"
-                        class="docusignbutton brown" />
-                </td>
-                <td class="fourcolumn">
-                </td>
-            </tr>
-        </table>
-    </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <asp:TextBox runat="server" id="txtSubject" placeholder="enter the subject" autocomplete="off" class="span12" />
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <asp:TextBox runat="server" id="txtEmailBlurb" cols="20" placeholder="enter the e-mail blurb"
+                    rows="4" class="span12" TextMode="MultiLine" />
+            </div>
+        </div>
+        <hr />
+        <div class="row-fluid">
+            <div class="span12 form-horizontal">
+                 <div class="control-group">
+                    <label for="TemplateTable" class="control-label">Select a Template: </label>
+                    <div class="controls">
+                        <select id="Templates" name="Templates" runat="server"></select>
+                        <button id="selectTemplateButton" runat="server" class="btn" onserverclick="OnTemplateSelect">Go</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr />
+        <div class="row-fluid">
+            <div class="span12">
+                <table width="100%" id="RecipientTable" name="RecipientTable" runat="server" class="table">
+                    <thead>
+                    <tr class="rowheader">
+                        <th class="fivecolumn">
+                            <b>Role Name</b>
+                        </th>
+                        <th class="fivecolumn">
+                            <b>Name</b>
+                        </th>
+                        <th class="fivecolumn">
+                            <b>E-mail</b>
+                        </th>
+                        <th class="fivecolumn">
+                            <b>Security</b>
+                            <!--<img alt="" src="" class="helplink" />-->
+                        </th>
+                        <th class="fivecolumn">
+                            <b>Send E-mail Invite</b>
+                        </th>
+                    </tr>
+                        </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row-fluid">
+            <div class="span12 form-horizontal">
+                <div class="control-group">
+                    <label class="control-label" for="reminders">Add Daily Reminders: </label>
+                    <div class="controls">
+
+                        <div class="input-append">
+                            <input type="text" id="reminders" class="datepickers" runat="server" />
+                            <span class="add-on">
+                                <label class="icon-calendar" for="reminders"></label>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="expiration">Add Expiration:</label>
+                    <div class="controls">
+                        <div class="input-append">
+                            <input type="text" id="expiration" class="datepickers" runat="server" />
+                            <span class="add-on">
+                                <label class="icon-calendar" for="expiration"></label>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span6">
+                <asp:Button runat="server" class="btn btn-large btn-success span8 pull-right" OnCommand="CreateEnvelope" CommandName="SendNow" Text="Send Now" />
+
+            </div>
+            <div class="span6">
+                <asp:Button runat="server" class="btn btn-large btn-primary span8" OnCommand="CreateEnvelope"  CommandName="EmbedSending" Text="Edit Before Sending" />
+            </div>
+        </div>
     </form>
 </asp:Content>

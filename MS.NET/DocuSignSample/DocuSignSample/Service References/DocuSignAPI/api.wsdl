@@ -638,6 +638,7 @@
           <s:element minOccurs="0" maxOccurs="1" name="EnvelopeAttachment" type="tns:ArrayOfAttachment" />
           <s:element minOccurs="0" maxOccurs="1" name="DocumentStatuses" type="tns:ArrayOfDocumentStatus" />
           <s:element minOccurs="0" maxOccurs="1" name="FormData" type="tns:FormData" />
+          <s:element minOccurs="0" maxOccurs="1" name="VoidReason" type="s:string" />
         </s:sequence>
       </s:complexType>
       <s:complexType name="ArrayOfRecipientStatus">

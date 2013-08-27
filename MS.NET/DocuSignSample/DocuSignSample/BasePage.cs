@@ -8,7 +8,6 @@ namespace DocuSignSample
 {
     public class BasePage : System.Web.UI.Page
     {
-        protected string logoutCtrlName = "ctl00$logoutBtn";
         
         public APIServiceSoapClient CreateAPIProxy()
         {
@@ -68,7 +67,6 @@ namespace DocuSignSample
                 {
                     missingFields.Add(s);
                 }
-                break;
             }
             if (missingFields.Count > 0)
             {

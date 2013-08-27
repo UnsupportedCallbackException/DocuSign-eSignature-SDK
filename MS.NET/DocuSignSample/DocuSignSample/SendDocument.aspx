@@ -1,181 +1,167 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Tabs.Master" AutoEventWireup="true"
+﻿<%@ Page Title="Docusign: Send document" Language="C#" MasterPageFile="~/Tabs.Master" AutoEventWireup="true"
     CodeBehind="SendDocument.aspx.cs" Inherits="DocuSignSample.SendDocument" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
-    <link rel="stylesheet" href="css/jquery.ui.all.css" />
+
     <link rel="stylesheet" type="text/css" href="css/SendDocument.css" />
-    <!--<link rel="stylesheet" type="text/css" href="css/SendTemplate.css" />)-->
-    <script type="text/javascript" src="js/jquery-1.4.4.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.datepicker.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.dialog.js"></script>
-    <script type="text/javascript" src="js/jquery.bgiframe-2.1.2.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.mouse.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.draggable.js"></script>
-    <script type="text/javascript" src="js/jquery.ui.position.js"></script>
-    <script type="text/javascript" src="js/Utils.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            activate();
-            var today = new Date().getDate();
+
+            var today = new Date();
             $("#reminders").datepicker({
-                showOn: "button",
-                buttonImage: "images/calendar.png",
                 buttonImageOnly: true,
                 minDate: today
             });
             $("#expiration").datepicker({
-                showOn: "button",
-                buttonImage: "images/calendar.png",
                 buttonImageOnly: true,
-                minDate: today + 3
+                minDate: today + 3 * 24 * 60*60*1000
             });
         });
     </script>
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-    <form id="SendDocumentForm" action="SendDocument.aspx" runat="server">
-    <input id="subject" name="subject" type="text" placeholder="<enter the subject>"
-        autocomplete="off" class="email" /><!--<img alt="" src="" class="helplink" />--><br />
-    <textarea id="emailblurb" cols="20" name="emailblurb" placeholder="<enter the e-mail blurb>"
-        rows="4" class="email"></textarea>
-    <p>
-    </p>
-    <table id="recipientList" name="recipientList" class="recipientList">
-        <tr class="recipientListHeader">
-            <th>
-                Recipient
-            </th>
-            <th>
-                E-mail
-            </th>
-            <th>
-                Security and Setting
-                <!--<img alt="" src="" class="helplink" />-->
-            </th>
-            <th>
-                Send E-mail Invite
-            </th>
-        </tr>
-        <tr id="Recipient1" name="Recipient1">
-            <td>
-                <input id="RecipientName" type="text" name="RecipientName1" />
-            </td>
-            <td>
-                <input id="RecipientEmail" type="email" name="RecipientEmail1" />
-            </td>
-            <td>
-                <select id="RecipientSecurity1" name="RecipientSecurity1" onchange="javascript:EnableDisableInput(1)">
-                    <option value="None">None</option>
-                    <option value="AccessCode">Access Code:</option>
-                    <option value="PhoneAuthentication">Phone Authentication</option>
-                    <option value="IDCheck">ID Check</option>
-                </select><input id="RecipientSecuritySetting1" type="text" name="RecipientSecuritySetting1"
-                    style="display: none;" />
-            </td>
-            <td>
-                <ul class="switcher" id="RecipientInvite1">
-                    <li id="RecipientInviteon1" class="active"><a href="#" title="On">ON</a></li>
-                    <li id="RecipientInviteoff1"><a href="#" title="OFF">OFF</a></li>
-                    <input id="RecipientInviteToggle1" name="RecipientInviteToggle1" value="RecipientInviteToggle1"
-                        type="checkbox" checked style="display:none;" />
-                </ul>
-            </td>
-        </tr>
-    </table>
-    <input type="button" onclick="addRowToTable()" value="Add Recipient" />
-    <div id="files">
-        <p>
-            Document #1:
-            <input class="upload" id="file1" type="file" name="file1" runat="server" /></p>
-        <p>
-            Document #2:
-            <input class="upload" id="file2" type="file" name="file2" runat="server" /></p>
-    </div>
-    <table class="optionlist">
-        <tr>
-            <td>
-                <input id="sendoption" class="options" type="checkbox" value="stockdoc" name="stockdoc"
-                    onclick="EnableDisableDiv()" />
-                Use a stock doc
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-            <td rowspan="3">
-                <input type="text" id="reminders" class="datepickers" name="reminders" onchange="openPicker()"
-                    onclick="openPicker()" /><br />
-                Add Daily Reminders
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input class="options" type="checkbox" value="addsig" name="addsigs" checked/>
-                Add Signatures
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input class="options" type="checkbox" value="addformfield" name="formfields" checked/>
-                Add Form Fields
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input class="options" type="checkbox" value="addcondfield" name="conditionalfields" checked/>
-                Add Conditional Fields
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-            <td rowspan="3">
-                <input type="text" id="expiration" class="datepickers" name="expiration" onclick="openPicker()" /><br />
-                Add Expiration
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input class="options" type="checkbox" name="collabfields" value="addcollfield" />
-                Add Collaborative Fields
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input class="options" type="checkbox" name="enablepaper" value="enablepaper" />
-                Enable Signing on Paper
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <input class="options" type="checkbox" name="signerattachment" value="reqattachment" />
-                Request a Signer to Add an Attachment
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                <input class="options" type="checkbox" name="markup" value="enablemarkup" />
-                Enable Signers to Mark Up the Documents
-                <!--<img alt="" src="" class="helplink" />-->
-            </td>
-        </tr>
-    </table>
-    <p />
-    <table class="submit">
-        <tr>
-            <td class="fourcolumn">
-            </td>
-            <td class="fourcolumn">
-                <input type="submit" value="Send Now" name="SendNow" style="width: 100%;" class="docusignbutton orange" />
-            </td>
-            <td class="fourcolumn">
-                <input type="submit" value="Edit Before Sending" name="EditFirst" style="width: 100%;"
-                    class="docusignbutton brown" />
-            </td>
-            <td class="fourcolumn">
-            </td>
-        </tr>
-    </table>
+    <form id="SendDocumentForm" action="SendDocument.aspx" runat="server" class="form-horizontal">
+        <div class="row-fluid">
+            <div class="span12">
+                <asp:TextBox runat="server" type="text" id="txtSubject" name="subject" placeholder="enter the subject" autocomplete="off" class="span12" />
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <asp:TextBox runat="server" id="txtEmailBlurb" cols="20" name="emailblurb" placeholder="enter the e-mail blurb"
+                    rows="4" class="span12" TextMode="MultiLine" />
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">
+                <table id="recipientList" name="recipientList" class="table">
+                    <thead>
+                        <tr class="recipientListHeader">
+                            <th>Recipient</th>
+                            <th>E-mail</th>
+                            <th>Security and Setting</th>
+                            <th>Send E-mail Invite</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr >
+                        <td>
+                            <input type="text" name="RecipientName1" />
+                        </td>
+                        <td>
+                            <input type="email" name="RecipientEmail1" />
+                        </td>
+                        <td width="270">
+                            <select id="RecipientSecurity1" name="RecipientSecurity1" onchange="EnableDisableInput(1)" style="width:150px;">
+                                <option value="None">None</option>
+                                <option value="AccessCode">Access Code:</option>
+                                <option value="PhoneAuthentication">Phone Authentication</option>
+                                <option value="IDCheck">ID Check</option>
+                            </select>
+                            <input type="text" id="RecipientSecuritySetting1" name="RecipientSecuritySetting1"
+                                style="display: none; width:100px" />
+                        </td>
+                        <td>
+                            <div class="btn-group" data-toggle="buttons-radio">
+                                <button type="button" class="btn active">ON</button>
+                                <button type="button" class="btn">OFF</button>
+                            </div>
+                            <input id="RecipientInviteToggle1" name="RecipientInviteToggle1" value="RecipientInviteToggle1"
+                                    type="checkbox" checked style="visibility:hidden;" />
+                        </td>
+                    </tr>
+                        </tbody>
+                </table>
+                <button class="btn" type="button" onclick="addRowToTable()"><i class="icon-plus"></i> Add Recipient</button>
+            </div>
+        </div>
+
+        <hr />
+
+        <div id="files" class="row-fluid">
+            <div class="span12">
+                <p>
+                    Document #1:
+           
+                    <input class="upload" id="file1" type="file" name="file1" runat="server" />
+                </p>
+                <p>
+                    Document #2:
+           
+                    <input class="upload" id="file2" type="file" name="file2" runat="server" />
+                </p>
+            </div>
+        </div>
+        <hr />
+        <div class="row-fluid">
+            <div class="span6">
+                <label class="checkbox">
+                    <input id="sendoption" class="options" type="checkbox" value="stockdoc" name="stockdoc"
+                        onchange="EnableDisableDiv()" />
+                    Use a stock doc
+                   
+                </label>
+                <label class="checkbox">
+                    <input class="options" type="checkbox" value="addsig" name="addsigs" checked />
+                    Add Signatures
+               
+                </label>
+
+                <label class="checkbox">
+                    <input class="options" type="checkbox" value="addformfield" name="formfields" checked />
+                    Add Form Fields
+                    
+                </label>
+
+                <label class="checkbox">
+                    <input class="options" type="checkbox" value="addcondfield" name="conditionalfields" checked />
+                    Add Conditional Fields
+                
+                </label>
+                <label class="checkbox">
+                    <input class="options" type="checkbox" name="collabfields" value="addcollfield" />
+                    Add Collaborative Fields
+                </label>
+                <label class="checkbox">
+                    <input class="options" type="checkbox" name="enablepaper" value="enablepaper" />
+                    Enable Signing on Paper
+               
+                </label>
+                <label class="checkbox">
+                    <input class="options" type="checkbox" name="signerattachment" value="reqattachment" />
+                    Request a Signer to Add an Attachment
+                </label>
+                <label class="checkbox">
+                    <input class="options" type="checkbox" name="markup" value="enablemarkup" />
+                    Enable Signers to Mark Up the Documents
+                </label>
+            </div>
+            <div class="span6">
+                <label for="reminders">Add Daily Reminders</label>
+                <div class="input-append">
+                    <input type="text" id="reminders" class="datepickers" name="reminders" />
+                    <span class="add-on"><label class="icon-calendar" for="reminders"></label></span>
+                </div>
+               <br />
+                
+                <label for="expiration">Add Expiration</label>
+               
+                <div class="input-append">
+                    <input type="text" id="expiration" class="datepickers" name="expiration" />
+                    <span class="add-on"><label class="icon-calendar" for="expiration"></label></span>
+                </div>
+                <br />
+                
+            </div>
+        </div>
+        <div class="row-fluid">
+            <div class="span6">
+                <button type="submit" class="btn btn-large btn-success span8 pull-right" runat="server" onserverclick="SendNow">Send Now</button>
+            </div>
+            <div class="span6">
+                <button type="submit" class="btn btn-large btn-primary span8" runat="server" onserverclick="EmbedSending">Edit Before Sending</button>
+            </div>
+        </div>
+
     </form>
 </asp:Content>

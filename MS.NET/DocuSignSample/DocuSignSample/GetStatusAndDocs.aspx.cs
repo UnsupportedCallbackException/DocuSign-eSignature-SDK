@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using DocuSignSample.resources;
 using System;
+using System.Web.UI.HtmlControls;
 
 namespace DocuSignSample
 {
@@ -13,37 +14,34 @@ namespace DocuSignSample
             {
                 Response.Redirect("LogIn.aspx");
             }
-            if (Request.Form["__EVENTTARGET"] != logoutCtrlName)
+            if (Request.Form.Keys.Count >= 1)
             {
-                if (Request.Form.Keys.Count >= 1)
+                foreach (string key in Request.Form.Keys)
                 {
-                    foreach (string key in Request.Form.Keys)
+                    // Start the download of an envelope's documents
+                    if (Request.Form[key] == "Download")
                     {
-                        // Start the download of an envelope's documents
-                        if (Request.Form[key] == "Download")
-                        {
-                            DownloadItem(key);
-                            hostiframe.Visible = false;
-                        }
+                        DownloadItem(key);
+                        hostiframe.Visible = false;
+                    }
 
-                        // Start signing as a particular recipient
-                        else if (Request.Form[key] == "Start Signing")
-                        {
-                            string[] signing_params = key.Split('&');
-                            string uname = signing_params[2].Split('+')[1];
-                            string cid = signing_params[3].Split('+')[1];
-                            string email = signing_params[1].Split('+')[1];
-                            string eid = signing_params[0].Split('+')[1];
-                            StartSigning(uname, cid, email, eid);
-                        }
+                    // Start signing as a particular recipient
+                    else if (Request.Form[key] == "Start Signing")
+                    {
+                        string[] signing_params = key.Split('&');
+                        string uname = signing_params[2].Split('+')[1];
+                        string cid = signing_params[3].Split('+')[1];
+                        string email = signing_params[1].Split('+')[1];
+                        string eid = signing_params[0].Split('+')[1];
+                        StartSigning(uname, cid, email, eid);
                     }
                 }
-                else
-                {
-                    // Get the statuses of envelopes
-                    GetStatuses();
-                    hostiframe.Visible = false;
-                }
+            }
+            else
+            {
+                // Get the statuses of envelopes
+                GetStatuses();
+                hostiframe.Visible = false;
             }
         }
 
@@ -143,8 +141,8 @@ namespace DocuSignSample
         {
             foreach (DocuSignAPI.EnvelopeStatus status in statuses.EnvelopeStatuses)
             {
-                var containerDiv = new System.Web.UI.HtmlControls.HtmlGenericControl("div");
-                var info = new System.Web.UI.HtmlControls.HtmlGenericControl("p")
+                var containerDiv = new HtmlGenericControl("div");
+                var info = new HtmlGenericControl("p")
                     {
                         InnerHtml =
                             "<a href=\"javascript:toggle('" + status.EnvelopeID + "_Detail" +
@@ -152,13 +150,13 @@ namespace DocuSignSample
                             ") - " + status.EnvelopeID
                     };
                 containerDiv.Controls.Add(info);
-                System.Web.UI.HtmlControls.HtmlGenericControl envelopeDetail = CreateEnvelopeTable(status);
+                HtmlGenericControl envelopeDetail = CreateEnvelopeTable(status);
                 envelopeDetail.Attributes[Keys.Class] = "detail";
                 envelopeDetail.Attributes[Keys.Id] = status.EnvelopeID + "_Detail";
 
                 containerDiv.Controls.Add(envelopeDetail);
-                var tr = new System.Web.UI.HtmlControls.HtmlTableRow();
-                var tc = new System.Web.UI.HtmlControls.HtmlTableCell();
+                var tr = new HtmlTableRow();
+                var tc = new HtmlTableCell();
                 tc.Controls.Add(containerDiv);
                 tr.Cells.Add(tc);
                 statusTable.Rows.Add(tr);
@@ -168,13 +166,13 @@ namespace DocuSignSample
 
         protected System.Web.UI.HtmlControls.HtmlGenericControl CreateEnvelopeTable(DocuSignAPI.EnvelopeStatus status)
         {
-            var envelopeDiv = new System.Web.UI.HtmlControls.HtmlGenericControl("div");
+            var envelopeDiv = new HtmlGenericControl("div");
 
             int recipIndex = 0;
 
             foreach (DocuSignAPI.RecipientStatus recipient in status.RecipientStatuses)
             {
-                var info = new System.Web.UI.HtmlControls.HtmlGenericControl("p");
+                var info = new HtmlGenericControl("p");
 
                 String recipId = "Recipient_Detail_" + status.EnvelopeID + "_" + recipient.RoutingOrder + "_" + recipient.UserName + "_" + recipient.Email + "_" + recipIndex++;
 
@@ -182,14 +180,14 @@ namespace DocuSignSample
                     recipient.UserName + ": " + recipient.Status.ToString();
                 if (recipient.Status != DocuSignAPI.RecipientStatusCode.Completed && null != recipient.ClientUserId)
                 {
-                    info.InnerHtml += " <input type=\"submit\" id=\"" + status.EnvelopeID + "\" value=\"Start Signing\" name=\"DocEnvelope+" + status.EnvelopeID + "&Email+" + recipient.Email + "&UserName+" +
-                        recipient.UserName + "&CID+" + recipient.ClientUserId + "\">";
+                    info.InnerHtml += " <input type='submit' id='" + status.EnvelopeID + "' value='Start Signing' name='DocEnvelope+" + status.EnvelopeID + "&Email+" + recipient.Email + "&UserName+" +
+                        recipient.UserName + "&CID+" + recipient.ClientUserId + "' class='btn btn-primary'>";
                 }
 
                 if (null != recipient.TabStatuses)
                 {
-                    var tabs = new System.Web.UI.HtmlControls.HtmlGenericControl("div");
-                    foreach (var t in recipient.TabStatuses.Select(tab => new System.Web.UI.HtmlControls.HtmlGenericControl("p")
+                    var tabs = new HtmlGenericControl("div");
+                    foreach (var t in recipient.TabStatuses.Select(tab => new HtmlGenericControl("p")
                         {
                             InnerHtml = tab.TabName + ": " + tab.TabValue
                         }))
@@ -203,7 +201,7 @@ namespace DocuSignSample
                 envelopeDiv.Controls.Add(info);
             }
 
-            var documents = new System.Web.UI.HtmlControls.HtmlGenericControl("p")
+            var documents = new HtmlGenericControl("p")
                 {
                     InnerHtml =
                         "<a href=\"javascript:toggle('" + status.EnvelopeID + "_Detail_Documents" +
@@ -216,8 +214,8 @@ namespace DocuSignSample
             envelopeDiv.Controls.Add(documents);
             if (null != status.DocumentStatuses)
             {
-                var documentDiv = new System.Web.UI.HtmlControls.HtmlGenericControl("div");
-                foreach (var info in status.DocumentStatuses.Select(document => new System.Web.UI.HtmlControls.HtmlGenericControl("p") {InnerHtml = document.Name}))
+                var documentDiv = new HtmlGenericControl("div");
+                foreach (var info in status.DocumentStatuses.Select(document => new HtmlGenericControl("p") {InnerHtml = document.Name}))
                 {
                     documentDiv.Controls.Add(info);
                 }

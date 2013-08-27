@@ -28,7 +28,7 @@ namespace DocuSignSample {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlTable buttonTable;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl buttonTable;
         
         /// <summary>
         /// messagediv control.

@@ -22,13 +22,31 @@ namespace DocuSignSample {
         protected global::System.Web.UI.HtmlControls.HtmlForm SendTemplateForm;
         
         /// <summary>
-        /// TemplateTable control.
+        /// txtSubject control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect TemplateTable;
+        protected global::System.Web.UI.WebControls.TextBox txtSubject;
+        
+        /// <summary>
+        /// txtEmailBlurb control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtEmailBlurb;
+        
+        /// <summary>
+        /// Templates control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlSelect Templates;
         
         /// <summary>
         /// selectTemplateButton control.
@@ -37,7 +55,7 @@ namespace DocuSignSample {
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputButton selectTemplateButton;
+        protected global::System.Web.UI.HtmlControls.HtmlButton selectTemplateButton;
         
         /// <summary>
         /// RecipientTable control.
@@ -47,5 +65,23 @@ namespace DocuSignSample {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlTable RecipientTable;
+        
+        /// <summary>
+        /// reminders control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText reminders;
+        
+        /// <summary>
+        /// expiration control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlInputText expiration;
     }
 }

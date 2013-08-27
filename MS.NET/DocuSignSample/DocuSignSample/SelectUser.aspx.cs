@@ -15,11 +15,7 @@ namespace DocuSignSample
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Page.IsPostBack)
-            {
-                OnSelect();
-            }
-            else
+            if (!Page.IsPostBack)
             {
                 if (null != Session[Keys.ApiAccounts] &&
                     null != Session[Keys.ApiEmail] &&
@@ -39,7 +35,7 @@ namespace DocuSignSample
             }
         }
 
-        private void OnSelect()
+        protected void On_Login(object sender, EventArgs e)
         {
             String selectedName = Request.Form[Keys.DevCenterName];
             accounts = (IDictionary<String, CredentialAPI.Account>)Session[Keys.ApiAccounts];

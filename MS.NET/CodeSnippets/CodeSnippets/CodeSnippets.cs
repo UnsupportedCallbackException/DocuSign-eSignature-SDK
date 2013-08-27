@@ -75,14 +75,12 @@ namespace CodeSnippets
             // We could also change it entirely
             for (int i = 0; i < correction.RecipientCorrections.Length; i++)
             {
-                DocuSignWeb.RecipientCorrection recipient = correction.RecipientCorrections[i];
                 correction.RecipientCorrections[i] = new DocuSignWeb.RecipientCorrection();
-                correction.RecipientCorrections[i].PreviousEmail = correction.RecipientCorrections[i].CorrectedEmail
-                                                                    = envelope.Recipients[i].Email;
-                correction.RecipientCorrections[i].PreviousUserName = correction.RecipientCorrections[i].CorrectedUserName
-                                                                    = envelope.Recipients[i].UserName;
-                correction.RecipientCorrections[i].PreviousRoutingOrder = correction.RecipientCorrections[i].CorrectedRoutingOrder
-                                                                        = envelope.Recipients[i].RoutingOrder;
+                var recipient = correction.RecipientCorrections[i];
+                var envelopeRecipients = envelope.Recipients[i];
+                recipient.PreviousEmail = recipient.CorrectedEmail = envelopeRecipients.Email;
+                recipient.PreviousUserName = recipient.CorrectedUserName = envelopeRecipients.UserName;
+                recipient.PreviousRoutingOrder = recipient.CorrectedRoutingOrder = envelopeRecipients.RoutingOrder;
             }
 
             // Go ahead and make the correction
